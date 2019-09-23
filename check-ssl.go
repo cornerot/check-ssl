@@ -4,13 +4,14 @@ import (
 	"crypto/tls"
 	"flag"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"math"
 	"net"
 	"os"
 	"runtime/debug"
 	"syscall"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // check exit codes
@@ -84,7 +85,8 @@ func main() {
 				switch err.(type) {
 				case *net.OpError:
 					// https://stackoverflow.com/questions/38764084/proper-way-to-handle-missing-ipv6-connectivity
-					if err.(*net.OpError).Err.(*os.SyscallError).Err == syscall.EHOSTUNREACH {
+					err := err.(*net.OpError).Err.(*os.SyscallError).Err
+					if err == syscall.EHOSTUNREACH || err == syscall.ENETUNREACH {
 						log.Infof("%-15s - ignoring unreachable IPv6 address", ip)
 						continue
 					}
